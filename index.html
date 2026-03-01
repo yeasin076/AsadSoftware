@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Inventory Management System - Setup Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            border-color: #0ea5e9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14,165,233,0.2);
+        }
+        
+        .feature-card h3 {
+            color: #0ea5e9;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .feature-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .feature-card li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .setup-steps {
+            background: #eff6ff;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border-left: 4px solid #0ea5e9;
+        }
+        
+        .setup-steps h2 {
+            color: #0369a1;
+            margin-bottom: 20px;
+        }
+        
+        .step {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #0ea5e9;
+            color: white;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .code-block code {
+            display: block;
+            white-space: pre-wrap;
+        }
+        
+        .credentials {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .credentials h3 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .tech-badge {
+            background: #0ea5e9;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .footer {
+            background: #f1f5f9;
+            padding: 30px 40px;
+            text-align: center;
+            color: #64748b;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #0ea5e9;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0284c7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14,165,233,0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Phone Inventory Management System</h1>
+            <p>Complete Full-Stack Solution with React.js, Node.js & MySQL</p>
+        </div>
+        
+        <div class="content">
+            <h2 style="color: #0369a1; margin-bottom: 20px;">🚀 Tech Stack</h2>
+            <div class="tech-stack">
+                <span class="tech-badge">React.js 18</span>
+                <span class="tech-badge">Node.js</span>
+                <span class="tech-badge">Express.js</span>
+                <span class="tech-badge">MySQL</span>
+                <span class="tech-badge">JWT Auth</span>
+                <span class="tech-badge">Tailwind CSS</span>
+                <span class="tech-badge">Vite</span>
+                <span class="tech-badge">Recharts</span>
+            </div>
+            
+            <h2 style="color: #0369a1; margin: 30px 0 20px;">✨ Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🔐 Authentication</h3>
+                    <ul>
+                        <li>JWT Token Auth</li>
+                        <li>Password Hashing</li>
+                        <li>Role-Based Access</li>
+                        <li>Protected Routes</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📊 Dashboard</h3>
+                    <ul>
+                        <li>Stock Overview</li>
+                        <li>Sales Analytics</li>
+                        <li>Profit Tracking</li>
+                        <li>Low Stock Alerts</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📦 Inventory</h3>
+                    <ul>
+                        <li>Full CRUD Operations</li>
+                        <li>Search & Filter</li>
+                        <li>IMEI Tracking</li>
+                        <li>Status Management</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>💰 Sales</h3>
+                    <ul>
+                        <li>Quick Selling</li>
+                        <li>Auto Profit Calc</li>
+                        <li>Customer Records</li>
+                        <li>Status Updates</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📈 Reports</h3>
+                    <ul>
+                        <li>Daily Reports</li>
+                        <li>Monthly Analytics</li>
+                        <li>Brand Performance</li>
+                        <li>Visual Charts</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🎨 Modern UI</h3>
+                    <ul>
+                        <li>Responsive Design</li>
+                        <li>Sidebar Navigation</li>
+                        <li>Clean Interface</li>
+                        <li>Toast Notifications</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="setup-steps">
+                <h2>⚙️ Quick Setup Guide</h2>
+                
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Install Prerequisites</strong>
+                    <p style="margin-top: 10px;">Ensure you have Node.js (v16+), npm, and MySQL (v8+) installed.</p>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Database Setup</strong>
+                    <div class="code-block">
+                        <code>mysql -u root -p &lt; backend/config/database.sql</code>
+                    </div>
+                    <p style="margin-top: 10px;">This creates the database, tables, and sample data.</p>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Backend Setup</strong>
+                    <div class="code-block">
+                        <code>cd backend
+npm install
+cp .env.example .env
+# Edit .env with your database credentials
+npm run dev</code>
+                    </div>
+                    <p style="margin-top: 10px;">Backend will run on http://localhost:5000</p>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Frontend Setup</strong>
+                    <div class="code-block">
+                        <code>cd frontend
+npm install
+npm run dev</code>
+                    </div>
+                    <p style="margin-top: 10px;">Frontend will run on http://localhost:3000</p>
+                </div>
+            </div>
+            
+            <div class="credentials">
+                <h3>🔑 Default Login Credentials</h3>
+                <p style="margin: 10px 0;"><strong>Username:</strong> admin</p>
+                <p><strong>Password:</strong> admin123</p>
+            </div>
+            
+            <div style="text-align: center; margin: 40px 0;">
+                <h2 style="color: #0369a1; margin-bottom: 20px;">📚 Full Documentation</h2>
+                <p style="margin-bottom: 20px;">For complete installation instructions, API documentation, and troubleshooting:</p>
+                <a href="README.md" class="btn">View README.md</a>
+            </div>
+            
+            <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
+                <h3 style="color: #065f46; margin-bottom: 10px;">✅ What's Included</h3>
+                <ul style="list-style: none; padding-left: 0;">
+                    <li style="padding: 5px 0;">✓ Complete RESTful API with Express.js</li>
+                    <li style="padding: 5px 0;">✓ React.js frontend with modern hooks</li>
+                    <li style="padding: 5px 0;">✓ MySQL database with optimized schema</li>
+                    <li style="padding: 5px 0;">✓ JWT authentication & authorization</li>
+                    <li style="padding: 5px 0;">✓ Responsive Tailwind CSS design</li>
+                    <li style="padding: 5px 0;">✓ Production-ready code structure</li>
+                    <li style="padding: 5px 0;">✓ Comprehensive error handling</li>
+                    <li style="padding: 5px 0;">✓ Sample data for testing</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p style="font-size: 1.1em; margin-bottom: 10px;"><strong>Phone Inventory Management System</strong></p>
+            <p>Built with ❤️ using React.js, Node.js, Express.js, and MySQL</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">© 2026 Asad Software. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
