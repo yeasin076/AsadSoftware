@@ -1,4 +1,4 @@
-# Phone Inventory Management System - Project Structure
+# Asad's Inventory - Project Structure
 
 ```
 AsadSoftware/

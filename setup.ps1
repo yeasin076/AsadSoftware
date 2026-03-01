@@ -1,7 +1,7 @@
-# Phone Inventory Management System - Quick Start
+# Asad's Inventory - Quick Start
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Phone Inventory Management System" -ForegroundColor Cyan
+Write-Host "  Asad's Inventory" -ForegroundColor Cyan
 Write-Host "  Quick Start Setup" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""

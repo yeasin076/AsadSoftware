@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-Common issues and their solutions for the Phone Inventory Management System.
+Common issues and their solutions for Asad's Inventory.
 
 ---
 

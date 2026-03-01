@@ -36,7 +36,7 @@ const Login = () => {
               <FiLock className="text-white text-2xl" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
-            <p className="text-gray-600 mt-2">Phone Inventory Management System</p>
+            <p className="text-gray-600 mt-2">Asad's Inventory</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

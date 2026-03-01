@@ -1,6 +1,6 @@
 # 📁 Complete File List
 
-This document lists all files created for the Phone Inventory Management System.
+This document lists all files created for Asad's Inventory.
 
 ---
 
