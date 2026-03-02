@@ -8,6 +8,10 @@ import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
 import Sales from './pages/Sales';
 import Reports from './pages/Reports';
+import Expenses from './pages/Expenses';
+import Investments from './pages/Investments';
+import CashMemo from './pages/CashMemo';
+import ManageAdmin from './pages/ManageAdmin';
 
 function App() {
   const { loading } = useContext(AuthContext);
@@ -66,6 +70,50 @@ function App() {
             <PrivateRoute>
               <Layout>
                 <Reports />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/expenses"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Expenses />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/investments"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Investments />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/cashmemo"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CashMemo />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/manage-admin"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ManageAdmin />
               </Layout>
             </PrivateRoute>
           }

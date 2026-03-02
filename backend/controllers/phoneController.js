@@ -281,11 +281,59 @@ const getBrands = async (req, res) => {
   }
 };
 
+// @desc    Bulk import phones
+// @route   POST /api/phones/import
+// @access  Private
+const bulkImportPhones = async (req, res) => {
+  try {
+    const { phones } = req.body;
+    if (!Array.isArray(phones) || phones.length === 0) {
+      return res.status(400).json({ success: false, message: 'No phones data provided' });
+    }
+
+    let inserted = 0;
+    let skipped = 0;
+    const errors = [];
+
+    for (const p of phones) {
+      const { brand, model, storage, color, imei, buying_price, selling_price, supplier_name, status } = p;
+      if (!brand || !model || !imei) {
+        skipped++;
+        errors.push(`Skipped row: missing brand/model/imei`);
+        continue;
+      }
+      try {
+        await pool.query(
+          `INSERT INTO phones (brand, model, storage, color, imei, buying_price, selling_price, supplier_name, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [brand, model, storage || '', color || '', imei, buying_price || 0, selling_price || 0, supplier_name || '', status || 'In Stock']
+        );
+        inserted++;
+      } catch (err) {
+        skipped++;
+        errors.push(`IMEI ${imei}: ${err.code === 'ER_DUP_ENTRY' ? 'already exists' : err.message}`);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Imported ${inserted} phone(s), skipped ${skipped}.`,
+      inserted,
+      skipped,
+      errors
+    });
+  } catch (error) {
+    console.error('Bulk import error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 module.exports = {
   getPhones,
   getPhoneById,
   addPhone,
   updatePhone,
   deletePhone,
-  getBrands
+  getBrands,
+  bulkImportPhones
 };

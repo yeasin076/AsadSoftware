@@ -26,7 +26,7 @@ const login = async (req, res) => {
     if (users.length === 0) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Username is incorrect'
       });
     }
 
@@ -38,7 +38,7 @@ const login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Password is incorrect'
       });
     }
 
@@ -155,4 +155,44 @@ const register = async (req, res) => {
   }
 };
 
-module.exports = { login, getMe, register };
+// @desc    Get all admin users
+// @route   GET /api/auth/users
+// @access  Private/Admin
+const getUsers = async (req, res) => {
+  try {
+    const [users] = await pool.query(
+      'SELECT id, username, email, full_name, role, created_at FROM users ORDER BY created_at DESC'
+    );
+    res.json({ success: true, data: users });
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Delete an admin user
+// @route   DELETE /api/auth/users/:id
+// @access  Private/Admin
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent self-deletion
+    if (parseInt(id) === req.user.id) {
+      return res.status(400).json({ success: false, message: 'You cannot delete your own account' });
+    }
+
+    const [existing] = await pool.query('SELECT id FROM users WHERE id = ?', [id]);
+    if (existing.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    await pool.query('DELETE FROM users WHERE id = ?', [id]);
+    res.json({ success: true, message: 'Admin deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+module.exports = { login, getMe, register, getUsers, deleteUser };

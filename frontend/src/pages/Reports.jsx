@@ -143,11 +143,11 @@ const Reports = () => {
                 </div>
                 <div className="card bg-green-50 border border-green-200">
                   <p className="text-sm text-gray-600 font-medium">Total Revenue</p>
-                  <p className="text-3xl font-bold text-green-600 mt-2">${dailyReport.summary.totalRevenue}</p>
+                  <p className="text-3xl font-bold text-green-600 mt-2">৳{dailyReport.summary.totalRevenue}</p>
                 </div>
                 <div className="card bg-purple-50 border border-purple-200">
                   <p className="text-sm text-gray-600 font-medium">Total Profit</p>
-                  <p className="text-3xl font-bold text-purple-600 mt-2">${dailyReport.summary.totalProfit}</p>
+                  <p className="text-3xl font-bold text-purple-600 mt-2">৳{dailyReport.summary.totalProfit}</p>
                 </div>
               </div>
 
@@ -177,10 +177,10 @@ const Reports = () => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{sale.imei}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{sale.customer_name}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              ${parseFloat(sale.selling_price).toFixed(2)}
+                              ৳{parseFloat(sale.selling_price).toFixed(2)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                              ${parseFloat(sale.profit).toFixed(2)}
+                              ৳{parseFloat(sale.profit).toFixed(2)}
                             </td>
                           </tr>
                         ))}
@@ -243,11 +243,11 @@ const Reports = () => {
                 </div>
                 <div className="card bg-green-50 border border-green-200">
                   <p className="text-sm text-gray-600 font-medium">Total Revenue</p>
-                  <p className="text-3xl font-bold text-green-600 mt-2">${monthlyReport.summary.totalRevenue}</p>
+                  <p className="text-3xl font-bold text-green-600 mt-2">৳{monthlyReport.summary.totalRevenue}</p>
                 </div>
                 <div className="card bg-purple-50 border border-purple-200">
                   <p className="text-sm text-gray-600 font-medium">Total Profit</p>
-                  <p className="text-3xl font-bold text-purple-600 mt-2">${monthlyReport.summary.totalProfit}</p>
+                  <p className="text-3xl font-bold text-purple-600 mt-2">৳{monthlyReport.summary.totalProfit}</p>
                 </div>
               </div>
 
@@ -265,7 +265,7 @@ const Reports = () => {
                       <YAxis />
                       <Tooltip 
                         labelFormatter={(date) => new Date(date).toLocaleDateString()}
-                        formatter={(value) => [`$${parseFloat(value).toFixed(2)}`, '']}
+                        formatter={(value) => [`৳${parseFloat(value).toFixed(2)}`, '']}
                       />
                       <Line type="monotone" dataKey="revenue" stroke="#0ea5e9" name="Revenue" strokeWidth={2} />
                       <Line type="monotone" dataKey="profit" stroke="#8b5cf6" name="Profit" strokeWidth={2} />
@@ -364,10 +364,10 @@ const Reports = () => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{sale.imei}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{sale.customer_name}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              ${parseFloat(sale.selling_price).toFixed(2)}
+                              ৳{parseFloat(sale.selling_price).toFixed(2)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                              ${parseFloat(sale.profit).toFixed(2)}
+                              ৳{parseFloat(sale.profit).toFixed(2)}
                             </td>
                           </tr>
                         ))}

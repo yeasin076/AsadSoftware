@@ -8,12 +8,14 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
     const result = await login(username, password);
 
@@ -21,7 +23,14 @@ const Login = () => {
       toast.success('Login successful!');
       navigate('/dashboard');
     } else {
-      toast.error(result.message);
+      const msg = result.message || '';
+      if (msg.toLowerCase().includes('username')) {
+        setErrorMsg('Username is incorrect.');
+      } else if (msg.toLowerCase().includes('password')) {
+        setErrorMsg('Password is incorrect.');
+      } else {
+        setErrorMsg('Username and Password are both incorrect.');
+      }
     }
 
     setLoading(false);
@@ -36,7 +45,7 @@ const Login = () => {
               <FiLock className="text-white text-2xl" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
-            <p className="text-gray-600 mt-2">Asad's Inventory</p>
+            <p className="text-gray-600 mt-2">Apple HQ Inventory</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -81,15 +90,17 @@ const Login = () => {
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
-          </form>
 
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 text-center">
-              Default Credentials:<br />
-              <span className="font-semibold">Username: admin</span><br />
-              <span className="font-semibold">Password: admin123</span>
-            </p>
-          </div>
+            {errorMsg && (
+              <div className="flex items-center space-x-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+                <span>⚠️</span>
+                <span>{errorMsg}</span>
+              </div>
+            )}
+          </form>
+          <p className="text-center text-xs text-gray-400 mt-5">
+            &copy; All rights reserved by YM Design
+          </p>
         </div>
       </div>
     </div>

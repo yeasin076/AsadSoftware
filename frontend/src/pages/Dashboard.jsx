@@ -54,7 +54,7 @@ const Dashboard = () => {
     },
     {
       title: 'Total Profit',
-      value: `$${stats?.totalProfit || 0}`,
+      value: `৳${stats?.totalProfit || 0}`,
       icon: FiDollarSign,
       color: 'bg-purple-500',
       bgColor: 'bg-purple-50'
@@ -126,7 +126,7 @@ const Dashboard = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={(entry) => `${entry.brand}: $${parseFloat(entry.total_profit).toFixed(0)}`}
+                  label={(entry) => `${entry.brand}: ৳${parseFloat(entry.total_profit).toFixed(0)}`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="total_profit"
@@ -158,8 +158,8 @@ const Dashboard = () => {
                     <p className="text-sm text-gray-600">{sale.customer_name}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-green-600">${parseFloat(sale.selling_price).toFixed(2)}</p>
-                    <p className="text-xs text-gray-500">Profit: ${parseFloat(sale.profit).toFixed(2)}</p>
+                    <p className="font-semibold text-green-600">৳{parseFloat(sale.selling_price).toFixed(2)}</p>
+                    <p className="text-xs text-gray-500">Profit: ৳{parseFloat(sale.profit).toFixed(2)}</p>
                   </div>
                 </div>
               ))

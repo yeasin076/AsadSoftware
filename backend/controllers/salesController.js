@@ -1,4 +1,5 @@
 const { pool } = require('../config/database');
+const { createSaleMemo } = require('./cashMemoController');
 
 // @desc    Sell a phone
 // @route   POST /api/sales
@@ -49,6 +50,11 @@ const sellPhone = async (req, res) => {
       [phone_id]
     );
 
+    // Auto-generate cash memo within the same transaction
+    const memoInfo = await createSaleMemo(
+      saleResult.insertId, phone, customer_name, customer_phone, connection
+    );
+
     await connection.commit();
 
     res.status(201).json({
@@ -56,7 +62,9 @@ const sellPhone = async (req, res) => {
       message: 'Phone sold successfully',
       data: {
         sale_id: saleResult.insertId,
-        profit: parseFloat(phone.selling_price - phone.buying_price).toFixed(2)
+        profit: parseFloat(phone.selling_price - phone.buying_price).toFixed(2),
+        memo_id: memoInfo.memoId,
+        memo_number: memoInfo.memoNumber
       }
     });
   } catch (error) {
@@ -79,9 +87,11 @@ const getSales = async (req, res) => {
     const { page = 1, limit = 10, brand, startDate, endDate } = req.query;
     
     let query = `
-      SELECT s.*, p.brand, p.model, p.storage, p.color, p.imei
+      SELECT s.*, p.brand, p.model, p.storage, p.color, p.imei,
+             cm.id as memo_id, cm.memo_number
       FROM sales s
       JOIN phones p ON s.phone_id = p.id
+      LEFT JOIN cash_memos cm ON cm.sale_id = s.id
       WHERE 1=1
     `;
     const params = [];

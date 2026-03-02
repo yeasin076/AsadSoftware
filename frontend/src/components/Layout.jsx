@@ -8,7 +8,11 @@ import {
   FiBarChart2, 
   FiLogOut,
   FiMenu,
-  FiX
+  FiX,
+  FiCreditCard,
+  FiTrendingUp,
+  FiFileText,
+  FiUsers
 } from 'react-icons/fi';
 import { useState } from 'react';
 
@@ -28,6 +32,10 @@ const Layout = ({ children }) => {
     { path: '/inventory', icon: FiPackage, label: 'Inventory' },
     { path: '/sales', icon: FiShoppingCart, label: 'Sales' },
     { path: '/reports', icon: FiBarChart2, label: 'Reports' },
+    { path: '/expenses', icon: FiCreditCard, label: 'Expenses' },
+    { path: '/investments', icon: FiTrendingUp, label: 'Investments' },
+    { path: '/cashmemo',    icon: FiFileText,   label: 'Cash Memo' },
+    { path: '/manage-admin', icon: FiUsers,      label: 'Manage Admin' },
   ];
 
   return (
@@ -38,8 +46,7 @@ const Layout = ({ children }) => {
           {/* Logo */}
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <div>
-              <h1 className="text-xl font-bold text-primary-600">Phone Inventory</h1>
-              <p className="text-xs text-gray-500">Management System</p>
+              <h1 className="text-xl font-bold text-primary-600">Apple HQ Inventory</h1>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}

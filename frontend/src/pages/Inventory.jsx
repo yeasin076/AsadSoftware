@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
-import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiFilter } from 'react-icons/fi';
+import * as XLSX from 'xlsx';
+import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiFilter, FiDownload } from 'react-icons/fi';
 
 const MODEL_COLORS = {
   'iPhone 13':          ['Midnight', 'Starlight', 'Blue', 'Pink', 'Green', 'Red'],
@@ -30,6 +31,10 @@ const BRAND_MODELS = {
     'iPhone 17', 'iPhone 17 Pro', 'iPhone 17 Pro Max',
   ],
   Samsung: [],
+  Realme: [],
+  Xiaomi: [],
+  Vivo: [],
+  Oppo: [],
 };
 
 const Inventory = () => {
@@ -149,15 +154,54 @@ const Inventory = () => {
     setShowModal(true);
   };
 
+  const handleExportExcel = async () => {
+    try {
+      // Fetch all phones (no pagination) for export
+      const params = new URLSearchParams();
+      params.append('limit', '10000');
+      if (searchTerm) params.append('search', searchTerm);
+      if (filterBrand) params.append('brand', filterBrand);
+      if (filterStatus) params.append('status', filterStatus);
+      const res = await api.get(`/phones?${params.toString()}`);
+      const data = res.data.data.map((p, i) => ({
+        '#': i + 1,
+        'Brand': p.brand,
+        'Model': p.model,
+        'Storage': p.storage || '',
+        'Color': p.color || '',
+        'IMEI': p.imei || '',
+        'Buying Price': parseFloat(p.buying_price),
+        'Selling Price': parseFloat(p.selling_price),
+        'Supplier': p.supplier_name || '',
+        'Status': p.status,
+        'Date Added': p.created_at ? new Date(p.created_at).toLocaleDateString('en-GB') : '',
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Inventory');
+      const today = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(wb, `inventory_${today}.xlsx`);
+      toast.success('Excel file downloaded!');
+    } catch {
+      toast.error('Failed to export data');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Inventory Management</h1>
-        <button onClick={openAddModal} className="btn-primary flex items-center">
-          <FiPlus className="mr-2" />
-          Add New Phone
-        </button>
+        <div className="flex items-center gap-3">
+          <button onClick={handleExportExcel} className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+            <FiDownload className="mr-2" />
+            Export Excel
+          </button>
+          <button onClick={openAddModal} className="btn-primary flex items-center">
+            <FiPlus className="mr-2" />
+            Add New Phone
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -181,6 +225,10 @@ const Inventory = () => {
             <option value="">All Brands</option>
             <option value="Apple">Apple</option>
             <option value="Samsung">Samsung</option>
+            <option value="Realme">Realme</option>
+            <option value="Xiaomi">Xiaomi</option>
+            <option value="Vivo">Vivo</option>
+            <option value="Oppo">Oppo</option>
           </select>
           <select
             value={filterStatus}
@@ -214,6 +262,7 @@ const Inventory = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IMEI</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prices</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -231,10 +280,13 @@ const Inventory = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{phone.imei}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">Buy: ${parseFloat(phone.buying_price).toFixed(2)}</div>
-                      <div className="text-sm text-gray-500">Sell: ${parseFloat(phone.selling_price).toFixed(2)}</div>
+                      <div className="text-sm text-gray-900">Buy: ৳{parseFloat(phone.buying_price).toFixed(2)}</div>
+                      <div className="text-sm text-gray-500">Sell: ৳{parseFloat(phone.selling_price).toFixed(2)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{phone.supplier_name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {phone.created_at ? new Date(phone.created_at).toLocaleDateString('en-GB') : '—'}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={phone.status === 'In Stock' ? 'badge-success' : 'badge-danger'}>
                         {phone.status}
@@ -312,6 +364,10 @@ const Inventory = () => {
                     <option value="">Select Brand</option>
                     <option value="Apple">Apple</option>
                     <option value="Samsung">Samsung</option>
+                    <option value="Realme">Realme</option>
+                    <option value="Xiaomi">Xiaomi</option>
+                    <option value="Vivo">Vivo</option>
+                    <option value="Oppo">Oppo</option>
                   </select>
                 </div>
                 <div>

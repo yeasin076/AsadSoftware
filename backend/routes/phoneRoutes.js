@@ -6,7 +6,8 @@ const {
   addPhone,
   updatePhone,
   deletePhone,
-  getBrands
+  getBrands,
+  bulkImportPhones
 } = require('../controllers/phoneController');
 const { authMiddleware } = require('../middleware/auth');
 
@@ -15,6 +16,7 @@ router.use(authMiddleware);
 
 router.get('/', getPhones);
 router.get('/brands/list', getBrands);
+router.post('/import', bulkImportPhones);
 router.get('/:id', getPhoneById);
 router.post('/', addPhone);
 router.put('/:id', updatePhone);
