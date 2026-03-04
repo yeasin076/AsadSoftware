@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const { testConnection } = require('./config/database');
+const { initDb } = require('./config/initDb');
 const errorHandler = require('./middleware/errorHandler');
 
 // Load environment variables
@@ -67,6 +68,9 @@ const startServer = async () => {
   try {
     // Test database connection
     await testConnection();
+
+    // Auto-initialize tables if not exist
+    await initDb();
 
     // Run DB migrations (add columns if missing)
     const { runMigration } = require('./controllers/cashMemoController');
