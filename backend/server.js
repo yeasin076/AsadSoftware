@@ -24,6 +24,7 @@ app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/expenses', require('./routes/expenseRoutes'));
 app.use('/api/investments', require('./routes/investmentRoutes'));
 app.use('/api/cashmemo',    require('./routes/cashMemoRoutes'));
+app.use('/api/exchanges',   require('./routes/exchangeRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -52,6 +53,10 @@ const startServer = async () => {
   try {
     // Test database connection
     await testConnection();
+
+    // Run DB migrations (add columns if missing)
+    const { runMigration } = require('./controllers/cashMemoController');
+    await runMigration();
     
     // Start listening
     app.listen(PORT, () => {

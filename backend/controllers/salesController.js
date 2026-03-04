@@ -84,7 +84,7 @@ const sellPhone = async (req, res) => {
 // @access  Private
 const getSales = async (req, res) => {
   try {
-    const { page = 1, limit = 10, brand, startDate, endDate } = req.query;
+    const { page = 1, limit = 10, brand, startDate, endDate, search } = req.query;
     
     let query = `
       SELECT s.*, p.brand, p.model, p.storage, p.color, p.imei,
@@ -100,6 +100,13 @@ const getSales = async (req, res) => {
     if (brand) {
       query += ' AND p.brand = ?';
       params.push(brand);
+    }
+
+    // Search filter
+    if (search) {
+      query += ' AND (s.customer_name LIKE ? OR s.customer_phone LIKE ? OR p.imei LIKE ? OR p.model LIKE ? OR p.brand LIKE ?)';
+      const like = `%${search}%`;
+      params.push(like, like, like, like, like);
     }
 
     // Date range filter
@@ -136,6 +143,12 @@ const getSales = async (req, res) => {
     if (brand) {
       countQuery += ' AND p.brand = ?';
       countParams.push(brand);
+    }
+
+    if (search) {
+      countQuery += ' AND (s.customer_name LIKE ? OR s.customer_phone LIKE ? OR p.imei LIKE ? OR p.model LIKE ? OR p.brand LIKE ?)';
+      const like = `%${search}%`;
+      countParams.push(like, like, like, like, like);
     }
 
     if (startDate) {

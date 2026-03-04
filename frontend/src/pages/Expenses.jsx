@@ -5,6 +5,34 @@ import { FiCalendar, FiTrendingUp, FiDollarSign, FiPlus, FiTrash2, FiAlertCircle
 
 const CATEGORIES = ['General', 'Rent', 'Salary', 'Electricity', 'Transport', 'Marketing', 'Maintenance', 'Other'];
 
+const DayMonthYearPicker = ({ value, onChange, className }) => {
+  const year  = value ? parseInt(value.substring(0, 4)) : new Date().getFullYear();
+  const month = value ? parseInt(value.substring(5, 7)) : new Date().getMonth() + 1;
+  const day   = value ? parseInt(value.substring(8, 10)) : new Date().getDate();
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const safeDay = Math.min(day, daysInMonth);
+  const emit = (d, m, y) => {
+    const str = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    onChange({ target: { value: str } });
+  };
+  const years  = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() + 1 - i);
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const days   = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  return (
+    <div className={`flex gap-2 ${className || ''}`}>
+      <select value={safeDay} onChange={(e) => emit(Number(e.target.value), month, year)} className="input-field w-20">
+        {days.map(d => <option key={d} value={d}>{String(d).padStart(2,'0')}</option>)}
+      </select>
+      <select value={month} onChange={(e) => emit(safeDay, Number(e.target.value), year)} className="input-field w-20">
+        {months.map(m => <option key={m} value={m}>{String(m).padStart(2,'0')}</option>)}
+      </select>
+      <select value={year} onChange={(e) => emit(safeDay, month, Number(e.target.value))} className="input-field w-28">
+        {years.map(y => <option key={y} value={y}>{y}</option>)}
+      </select>
+    </div>
+  );
+};
+
 const Expenses = () => {
   const [activeTab, setActiveTab] = useState('daily');
   const [summary, setSummary] = useState(null);
@@ -188,12 +216,9 @@ const Expenses = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
-              <input
-                type="date"
+              <DayMonthYearPicker
                 value={form.expense_date}
                 onChange={(e) => setForm({ ...form, expense_date: e.target.value })}
-                className="input-field"
-                required
               />
             </div>
             <div className="md:col-span-2">
@@ -250,11 +275,9 @@ const Expenses = () => {
         {activeTab === 'daily' && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
-            <input
-              type="date"
+            <DayMonthYearPicker
               value={filters.date}
               onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-              className="input-field max-w-xs"
             />
           </div>
         )}
@@ -370,11 +393,9 @@ const Expenses = () => {
                         /* ── Inline Edit Row ── */
                         <tr key={exp.id} className="bg-yellow-50">
                           <td className="px-3 py-2">
-                            <input
-                              type="date"
+                            <DayMonthYearPicker
                               value={editForm.expense_date}
                               onChange={(e) => setEditForm({ ...editForm, expense_date: e.target.value })}
-                              className="input-field text-sm py-1"
                             />
                           </td>
                           <td className="px-3 py-2">

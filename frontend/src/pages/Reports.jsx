@@ -4,6 +4,34 @@ import { toast } from 'react-toastify';
 import { FiCalendar, FiTrendingUp, FiDollarSign } from 'react-icons/fi';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
+const DayMonthYearPicker = ({ value, onChange, className }) => {
+  const year  = value ? parseInt(value.substring(0, 4)) : new Date().getFullYear();
+  const month = value ? parseInt(value.substring(5, 7)) : new Date().getMonth() + 1;
+  const day   = value ? parseInt(value.substring(8, 10)) : new Date().getDate();
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const safeDay = Math.min(day, daysInMonth);
+  const emit = (d, m, y) => {
+    const str = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    onChange({ target: { value: str } });
+  };
+  const years  = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() + 1 - i);
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const days   = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  return (
+    <div className={`flex gap-2 ${className || ''}`}>
+      <select value={safeDay} onChange={(e) => emit(Number(e.target.value), month, year)} className="input-field w-20">
+        {days.map(d => <option key={d} value={d}>{String(d).padStart(2,'0')}</option>)}
+      </select>
+      <select value={month} onChange={(e) => emit(safeDay, Number(e.target.value), year)} className="input-field w-20">
+        {months.map(m => <option key={m} value={m}>{String(m).padStart(2,'0')}</option>)}
+      </select>
+      <select value={year} onChange={(e) => emit(safeDay, month, Number(e.target.value))} className="input-field w-28">
+        {years.map(y => <option key={y} value={y}>{y}</option>)}
+      </select>
+    </div>
+  );
+};
+
 const Reports = () => {
   const [activeTab, setActiveTab] = useState('daily');
   const [dailyReport, setDailyReport] = useState(null);
@@ -121,11 +149,9 @@ const Reports = () => {
           {/* Filter */}
           <div className="card">
             <label className="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
-            <input
-              type="date"
+            <DayMonthYearPicker
               value={filters.date}
               onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-              className="input-field max-w-xs"
             />
           </div>
 
@@ -264,7 +290,7 @@ const Reports = () => {
                       />
                       <YAxis />
                       <Tooltip 
-                        labelFormatter={(date) => new Date(date).toLocaleDateString()}
+                        labelFormatter={(date) => new Date(date).toLocaleDateString('en-GB')}
                         formatter={(value) => [`৳${parseFloat(value).toFixed(2)}`, '']}
                       />
                       <Line type="monotone" dataKey="revenue" stroke="#0ea5e9" name="Revenue" strokeWidth={2} />
@@ -356,7 +382,7 @@ const Reports = () => {
                         {brandReport.sales.map((sale) => (
                           <tr key={sale.id}>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {new Date(sale.sale_date).toLocaleDateString()}
+                              {new Date(sale.sale_date).toLocaleDateString('en-GB')}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                               {sale.model}

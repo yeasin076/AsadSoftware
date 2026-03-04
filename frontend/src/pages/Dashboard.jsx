@@ -8,7 +8,7 @@ import {
   FiAlertTriangle,
   FiTrendingUp
 } from 'react-icons/fi';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -53,8 +53,8 @@ const Dashboard = () => {
       bgColor: 'bg-green-50'
     },
     {
-      title: 'Total Profit',
-      value: `৳${stats?.totalProfit || 0}`,
+      title: 'Net Profit',
+      value: `৳${stats?.netProfit || 0}`,
       icon: FiDollarSign,
       color: 'bg-purple-500',
       bgColor: 'bg-purple-50'
@@ -115,31 +115,25 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Brand Distribution */}
+        {/* Stock by Brand */}
         <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Brand Profit Distribution</h3>
-          {stats?.topBrands && stats.topBrands.length > 0 ? (
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Stock by Brand</h3>
+          {stats?.stockByBrand && stats.stockByBrand.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={stats.topBrands}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={(entry) => `${entry.brand}: ৳${parseFloat(entry.total_profit).toFixed(0)}`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="total_profit"
-                >
-                  {stats.topBrands.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <BarChart data={stats.stockByBrand} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" allowDecimals={false} />
+                <YAxis dataKey="brand" type="category" width={70} tick={{ fontSize: 12 }} />
+                <Tooltip formatter={(v) => [`${v} টি`, 'In Stock']} />
+                <Bar dataKey="count" name="In Stock" radius={[0, 4, 4, 0]}>
+                  {stats.stockByBrand.map((_, index) => (
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-500 text-center py-10">No profit data available</p>
+            <p className="text-gray-500 text-center py-10">No stock data available</p>
           )}
         </div>
       </div>

@@ -1,5 +1,27 @@
 const { pool } = require('../config/database');
 
+// ── Ensure paid_amount / due_amount columns exist (runs at startup) ──────────
+const runMigration = async () => {
+  try {
+    const [[{ db }]] = await pool.query(`SELECT DATABASE() AS db`);
+    const [cols] = await pool.query(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'cash_memos'
+       AND COLUMN_NAME IN ('paid_amount','due_amount')`,
+      [db]
+    );
+    const existing = cols.map(c => c.COLUMN_NAME);
+    if (!existing.includes('paid_amount')) {
+      await pool.query(`ALTER TABLE cash_memos ADD COLUMN paid_amount DECIMAL(10,2) NOT NULL DEFAULT 0`);
+    }
+    if (!existing.includes('due_amount')) {
+      await pool.query(`ALTER TABLE cash_memos ADD COLUMN due_amount  DECIMAL(10,2) NOT NULL DEFAULT 0`);
+    }
+  } catch (e) {
+    console.error('CashMemo migration error:', e.message);
+  }
+};
+
 // ── Internal helper: generate memo number like CM-2026-0001 ──────────────────
 const generateMemoNumber = async (conn) => {
   const year = new Date().getFullYear();
@@ -84,7 +106,7 @@ const createMemo = async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    const { customer_name, customer_phone, items, notes, memo_date } = req.body;
+    const { customer_name, customer_phone, items, notes, memo_date, paid_amount } = req.body;
 
     if (!customer_name || !items || items.length === 0) {
       await connection.rollback();
@@ -96,13 +118,16 @@ const createMemo = async (req, res) => {
       0
     );
 
+    const paidAmt  = Math.min(parseFloat(paid_amount ?? totalAmount), totalAmount);
+    const dueAmt   = Math.max(totalAmount - paidAmt, 0);
+
     const memoNumber = await generateMemoNumber(connection);
     const today = memo_date || new Date().toISOString().split('T')[0];
 
     const [result] = await connection.query(
-      `INSERT INTO cash_memos (memo_number, type, customer_name, customer_phone, total_amount, notes, memo_date)
-       VALUES (?, 'manual', ?, ?, ?, ?, ?)`,
-      [memoNumber, customer_name, customer_phone || '', totalAmount, notes || null, today]
+      `INSERT INTO cash_memos (memo_number, type, customer_name, customer_phone, total_amount, paid_amount, due_amount, notes, memo_date)
+       VALUES (?, 'manual', ?, ?, ?, ?, ?, ?, ?)`,
+      [memoNumber, customer_name, customer_phone || '', totalAmount, paidAmt, dueAmt, notes || null, today]
     );
 
     for (const item of items) {
@@ -128,6 +153,30 @@ const createMemo = async (req, res) => {
   }
 };
 
+// ── PATCH /api/cashmemo/:id/payment — Update paid amount ────────────────────
+const updatePayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { additional_payment } = req.body;
+
+    const [[memo]] = await pool.query(`SELECT * FROM cash_memos WHERE id = ?`, [id]);
+    if (!memo) return res.status(404).json({ success: false, message: 'Memo not found' });
+
+    const newPaid = Math.min(parseFloat(memo.paid_amount) + parseFloat(additional_payment || 0), parseFloat(memo.total_amount));
+    const newDue  = Math.max(parseFloat(memo.total_amount) - newPaid, 0);
+
+    await pool.query(
+      `UPDATE cash_memos SET paid_amount = ?, due_amount = ? WHERE id = ?`,
+      [newPaid, newDue, id]
+    );
+
+    res.json({ success: true, message: 'Payment updated', data: { paid_amount: newPaid, due_amount: newDue } });
+  } catch (error) {
+    console.error('Update payment error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 // ── DELETE /api/cashmemo/:id ─────────────────────────────────────────────────
 const deleteMemo = async (req, res) => {
   try {
@@ -149,5 +198,7 @@ module.exports = {
   getMemoById,
   createMemo,
   deleteMemo,
-  createSaleMemo
+  updatePayment,
+  createSaleMemo,
+  runMigration
 };

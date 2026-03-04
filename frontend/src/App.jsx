@@ -11,6 +11,7 @@ import Reports from './pages/Reports';
 import Expenses from './pages/Expenses';
 import Investments from './pages/Investments';
 import CashMemo from './pages/CashMemo';
+import Exchange from './pages/Exchange';
 import ManageAdmin from './pages/ManageAdmin';
 
 function App() {
@@ -103,6 +104,17 @@ function App() {
             <PrivateRoute>
               <Layout>
                 <CashMemo />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/exchange"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Exchange />
               </Layout>
             </PrivateRoute>
           }

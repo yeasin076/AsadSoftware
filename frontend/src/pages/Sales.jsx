@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
-import { FiShoppingCart, FiCalendar, FiFileText, FiPrinter, FiX, FiDownload } from 'react-icons/fi';
+import { FiShoppingCart, FiCalendar, FiFileText, FiPrinter, FiX, FiDownload, FiSearch } from 'react-icons/fi';
 
 const SHOP_NAME    = "Apple HQ";
 const SHOP_ADDRESS = 'Dhaka, Bangladesh';
@@ -15,6 +15,8 @@ const Sales = () => {
   const [showModal, setShowModal] = useState(false);
   const [pagination, setPagination] = useState({});
   const [filterBrand, setFilterBrand] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [brands, setBrands] = useState([]);
   const [viewMemo, setViewMemo] = useState(null);
   const [memoLoading, setMemoLoading] = useState(false);
@@ -31,13 +33,14 @@ const Sales = () => {
     fetchSales();
     fetchAvailablePhones();
     fetchBrands();
-  }, [filterBrand]);
+  }, [filterBrand, searchQuery]);
 
   const fetchSales = async (page = 1) => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
       if (filterBrand) params.append('brand', filterBrand);
+      if (searchQuery) params.append('search', searchQuery);
       params.append('page', page);
       params.append('limit', 10);
 
@@ -167,6 +170,31 @@ const Sales = () => {
               <option key={brand} value={brand}>{brand}</option>
             ))}
           </select>
+          <form
+            className="flex gap-2 md:col-span-2"
+            onSubmit={(e) => { e.preventDefault(); setSearchQuery(searchInput); }}
+          >
+            <div className="relative flex-1">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+              <input
+                type="text"
+                placeholder="Search by customer, IMEI, model, brand..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="input-field pl-9 w-full"
+              />
+            </div>
+            <button type="submit" className="btn-primary px-4">Search</button>
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => { setSearchInput(''); setSearchQuery(''); }}
+                className="px-3 py-2 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-100 text-sm"
+              >
+                <FiX size={16} />
+              </button>
+            )}
+          </form>
         </div>
       </div>
 

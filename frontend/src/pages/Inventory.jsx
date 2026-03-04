@@ -5,7 +5,15 @@ import * as XLSX from 'xlsx';
 import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiFilter, FiDownload } from 'react-icons/fi';
 
 const MODEL_COLORS = {
+  'iPhone 11':          ['Black', 'White', 'Yellow', 'Purple', 'Red', 'Green'],
+  'iPhone 11 Pro':      ['Midnight Green', 'Space Gray', 'Silver', 'Gold'],
+  'iPhone 11 Pro Max':  ['Midnight Green', 'Space Gray', 'Silver', 'Gold'],
+  'iPhone 12':          ['Black', 'White', 'Blue', 'Green', 'Red', 'Purple'],
+  'iPhone 12 Mini':     ['Black', 'White', 'Blue', 'Green', 'Red', 'Purple'],
+  'iPhone 12 Pro':      ['Silver', 'Graphite', 'Gold', 'Pacific Blue'],
+  'iPhone 12 Pro Max':  ['Silver', 'Graphite', 'Gold', 'Pacific Blue'],
   'iPhone 13':          ['Midnight', 'Starlight', 'Blue', 'Pink', 'Green', 'Red'],
+  'iPhone 13 Mini':     ['Midnight', 'Starlight', 'Blue', 'Pink', 'Green', 'Red'],
   'iPhone 13 Pro':      ['Graphite', 'Gold', 'Silver', 'Sierra Blue', 'Alpine Green'],
   'iPhone 13 Pro Max':  ['Graphite', 'Gold', 'Silver', 'Sierra Blue', 'Alpine Green'],
   'iPhone 14':          ['Midnight', 'Starlight', 'Blue', 'Purple', 'Yellow', 'Red'],
@@ -15,20 +23,24 @@ const MODEL_COLORS = {
   'iPhone 15 Pro':      ['Black Titanium', 'White Titanium', 'Blue Titanium', 'Natural Titanium'],
   'iPhone 15 Pro Max':  ['Black Titanium', 'White Titanium', 'Blue Titanium', 'Natural Titanium'],
   'iPhone 16':          ['Black', 'White', 'Pink', 'Teal', 'Ultramarine'],
+  'iPhone 16e':         ['Black', 'White'],
   'iPhone 16 Pro':      ['Black Titanium', 'White Titanium', 'Desert Titanium', 'Natural Titanium'],
   'iPhone 16 Pro Max':  ['Black Titanium', 'White Titanium', 'Desert Titanium', 'Natural Titanium'],
   'iPhone 17':          ['Black', 'White', 'Silver', 'Blue', 'Pink'],
+  'iPhone 17 Air':      ['Black', 'White', 'Blue', 'Pink', 'Teal'],
   'iPhone 17 Pro':      ['Black Titanium', 'White Titanium', 'Natural Titanium', 'Desert Titanium'],
   'iPhone 17 Pro Max':  ['Black Titanium', 'White Titanium', 'Natural Titanium', 'Desert Titanium'],
 };
 
 const BRAND_MODELS = {
   Apple: [
-    'iPhone 13', 'iPhone 13 Pro', 'iPhone 13 Pro Max',
+    'iPhone 11', 'iPhone 11 Pro', 'iPhone 11 Pro Max',
+    'iPhone 12', 'iPhone 12 Mini', 'iPhone 12 Pro', 'iPhone 12 Pro Max',
+    'iPhone 13', 'iPhone 13 Mini', 'iPhone 13 Pro', 'iPhone 13 Pro Max',
     'iPhone 14', 'iPhone 14 Pro', 'iPhone 14 Pro Max',
     'iPhone 15', 'iPhone 15 Pro', 'iPhone 15 Pro Max',
-    'iPhone 16', 'iPhone 16 Pro', 'iPhone 16 Pro Max',
-    'iPhone 17', 'iPhone 17 Pro', 'iPhone 17 Pro Max',
+    'iPhone 16', 'iPhone 16e', 'iPhone 16 Pro', 'iPhone 16 Pro Max',
+    'iPhone 17', 'iPhone 17 Air', 'iPhone 17 Pro', 'iPhone 17 Pro Max',
   ],
   Samsung: [],
   Realme: [],

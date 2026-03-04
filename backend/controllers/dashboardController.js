@@ -15,9 +15,14 @@ const getDashboardStats = async (req, res) => {
       "SELECT COUNT(*) as total FROM phones WHERE status = 'Sold'"
     );
 
-    // Get total profit
+    // Get total sales profit
     const [profitSum] = await pool.query(
       'SELECT COALESCE(SUM(profit), 0) as total FROM sales'
+    );
+
+    // Get total expenses
+    const [expenseSum] = await pool.query(
+      'SELECT COALESCE(SUM(amount), 0) as total FROM expenses'
     );
 
     // Get low stock alerts (brands with less than 5 phones)
@@ -41,12 +46,22 @@ const getDashboardStats = async (req, res) => {
 
     // Get top selling brands
     const [topBrands] = await pool.query(
-      `SELECT p.brand, COUNT(*) as sales_count, SUM(s.profit) as total_profit
+      `SELECT TRIM(p.brand) as brand, COUNT(*) as sales_count, SUM(s.profit) as total_profit
        FROM sales s
        JOIN phones p ON s.phone_id = p.id
-       GROUP BY p.brand
+       GROUP BY TRIM(p.brand)
        ORDER BY sales_count DESC
        LIMIT 5`
+    );
+
+    // Get current stock count by brand
+    const [stockByBrand] = await pool.query(
+      `SELECT TRIM(brand) as brand, COUNT(*) as count
+       FROM phones
+       WHERE status = 'In Stock'
+       GROUP BY TRIM(brand)
+       ORDER BY count DESC
+       LIMIT 8`
     );
 
     res.json({
@@ -55,9 +70,12 @@ const getDashboardStats = async (req, res) => {
         totalInStock: stockCount[0].total,
         totalSold: soldCount[0].total,
         totalProfit: parseFloat(profitSum[0].total).toFixed(2),
+        totalExpense: parseFloat(expenseSum[0].total).toFixed(2),
+        netProfit: (parseFloat(profitSum[0].total) - parseFloat(expenseSum[0].total)).toFixed(2),
         lowStockAlerts: lowStock,
         recentSales,
-        topBrands
+        topBrands,
+        stockByBrand
       }
     });
   } catch (error) {

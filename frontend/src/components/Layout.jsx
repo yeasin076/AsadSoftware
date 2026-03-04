@@ -12,7 +12,8 @@ import {
   FiCreditCard,
   FiTrendingUp,
   FiFileText,
-  FiUsers
+  FiUsers,
+  FiRepeat
 } from 'react-icons/fi';
 import { useState } from 'react';
 
@@ -35,6 +36,7 @@ const Layout = ({ children }) => {
     { path: '/expenses', icon: FiCreditCard, label: 'Expenses' },
     { path: '/investments', icon: FiTrendingUp, label: 'Investments' },
     { path: '/cashmemo',    icon: FiFileText,   label: 'Cash Memo' },
+    { path: '/exchange',     icon: FiRepeat,     label: 'Exchange' },
     { path: '/manage-admin', icon: FiUsers,      label: 'Manage Admin' },
   ];
 

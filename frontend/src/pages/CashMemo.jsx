@@ -3,7 +3,8 @@ import api from '../utils/api';
 import { toast } from 'react-toastify';
 import {
   FiPlus, FiTrash2, FiEye, FiPrinter, FiFileText,
-  FiAlertCircle, FiX, FiShoppingBag, FiDownload
+  FiAlertCircle, FiX, FiShoppingBag, FiDownload,
+  FiCheckCircle, FiClock, FiDollarSign
 } from 'react-icons/fi';
 
 const SHOP_NAME    = "APPLE HQ";
@@ -24,6 +25,9 @@ export default function CashMemo() {
   const [viewLoading, setViewLoading] = useState(false);
   const [submitting, setSubmitting]   = useState(false);
   const [deleteId, setDeleteId]       = useState(null);
+  const [payModal, setPayModal]       = useState(null);  // { memo } for due payment
+  const [payAmount, setPayAmount]     = useState('');
+  const [paying, setPaying]           = useState(false);
   const printRef = useRef();
 
   // Manual form state
@@ -33,6 +37,7 @@ export default function CashMemo() {
     customer_phone: '',
     memo_date: today,
     notes: '',
+    paid_amount: '',   // empty = full payment (no due)
     items: [{ ...emptyItem }]
   });
 
@@ -71,6 +76,8 @@ export default function CashMemo() {
   const totalAmount = form.items.reduce(
     (s, i) => s + (parseFloat(i.quantity || 1) * parseFloat(i.unit_price || 0)), 0
   );
+  const paidAmount = form.paid_amount === '' ? totalAmount : Math.min(parseFloat(form.paid_amount || 0), totalAmount);
+  const dueAmount  = Math.max(totalAmount - paidAmount, 0);
 
   // ── Submit manual memo ───────────────────────────────────────────
   const handleSubmit = async (e) => {
@@ -81,7 +88,7 @@ export default function CashMemo() {
       setSubmitting(true);
       const res = await api.post('/cashmemo', form);
       toast.success(`Memo ${res.data.data.memo_number} created!`);
-      setForm({ customer_name: '', customer_phone: '', memo_date: today, notes: '', items: [{ ...emptyItem }] });
+      setForm({ customer_name: '', customer_phone: '', memo_date: today, notes: '', paid_amount: '', items: [{ ...emptyItem }] });
       setShowForm(false);
       await fetchMemos();
       // Auto-open the newly created memo
@@ -89,6 +96,29 @@ export default function CashMemo() {
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to create memo');
     } finally { setSubmitting(false); }
+  };
+
+  // ── Update due payment ──────────────────────────────────────────
+  const handlePay = async () => {
+    if (!payAmount || isNaN(parseFloat(payAmount)) || parseFloat(payAmount) <= 0) {
+      return toast.error('Valid amount দিন');
+    }
+    try {
+      setPaying(true);
+      const res = await api.patch(`/cashmemo/${payModal.id}/payment`, { additional_payment: parseFloat(payAmount) });
+      toast.success('Payment আপডেট হয়েছে');
+      setPayModal(null);
+      setPayAmount('');
+      // Refresh list
+      await fetchMemos();
+      // Refresh open view if same memo
+      if (viewMemo?.id === payModal.id) {
+        const updated = await api.get(`/cashmemo/${payModal.id}`);
+        setViewMemo(updated.data.data);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Payment আপডেট ব্যর্থ হয়েছে');
+    } finally { setPaying(false); }
   };
 
   // ── Delete memo ──────────────────────────────────────────────────
@@ -205,14 +235,30 @@ export default function CashMemo() {
                 <td className="num">৳{fmt(parseInt(item.quantity) * parseFloat(item.unit_price))}</td>
               </tr>
             ))}
-            <tr className="total-row">
-              <td colSpan={4} style={{ textAlign: 'right' }}>Grand Total</td>
-              <td className="num">৳{fmt(itemTotal)}</td>
-            </tr>
           </tbody>
         </table>
 
-        {memo.notes && <div className="notes">Note: {memo.notes}</div>}
+        {/* Paid / Due row */}
+        <table style={{ marginBottom: 0 }}>
+          <tbody>
+            <tr>
+              <td colSpan={4} style={{ textAlign: 'right', fontWeight: 600, borderBottom: 'none' }}>Grand Total</td>
+              <td className="num" style={{ fontWeight: 700, borderBottom: 'none' }}>৳{fmt(itemTotal)}</td>
+            </tr>
+            <tr>
+              <td colSpan={4} style={{ textAlign: 'right', color: '#16a34a', borderBottom: 'none' }}>Paid</td>
+              <td className="num" style={{ color: '#16a34a', borderBottom: 'none' }}>৳{fmt(memo.paid_amount ?? itemTotal)}</td>
+            </tr>
+            {parseFloat(memo.due_amount || 0) > 0 && (
+              <tr>
+                <td colSpan={4} style={{ textAlign: 'right', color: '#dc2626', fontWeight: 700, borderBottom: 'none' }}>Due</td>
+                <td className="num" style={{ color: '#dc2626', fontWeight: 700, borderBottom: 'none' }}>৳{fmt(memo.due_amount)}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+
+        {memo.notes && <div className="notes" style={{ marginTop: 12 }}>Note: {memo.notes}</div>}
 
         {/* Footer + signature */}
         <div className="footer">
@@ -350,8 +396,23 @@ export default function CashMemo() {
                 ))}
               </div>
               {/* Grand Total */}
-              <div className="flex justify-end mt-3 pt-3 border-t border-primary-200">
+              <div className="flex flex-col items-end gap-1 mt-3 pt-3 border-t border-primary-200">
                 <span className="text-base font-bold text-gray-800">Grand Total: <span className="text-primary-700">৳{fmt(totalAmount)}</span></span>
+                <div className="flex items-center gap-3 mt-1">
+                  <label className="text-sm font-medium text-gray-700">Paid Amount (৳)</label>
+                  <input
+                    type="number" min="0" step="0.01"
+                    placeholder={`Full = ৳${fmt(totalAmount)}`}
+                    value={form.paid_amount}
+                    onChange={(e) => setForm({ ...form, paid_amount: e.target.value })}
+                    className="input-field text-sm w-40"
+                  />
+                </div>
+                {dueAmount > 0 && (
+                  <span className="flex items-center gap-1 text-sm font-semibold text-red-600">
+                    <FiClock size={14} /> Due: ৳{fmt(dueAmount)}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -401,6 +462,7 @@ export default function CashMemo() {
                   <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                   <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
                   <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due</th>
                   <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -424,6 +486,21 @@ export default function CashMemo() {
                     </td>
                     <td className="px-5 py-3 text-sm font-semibold text-gray-900">
                       ৳{fmt(memo.total_amount)}
+                    </td>
+                    <td className="px-5 py-3">
+                      {parseFloat(memo.due_amount || 0) > 0 ? (
+                        <button
+                          onClick={() => { setPayModal(memo); setPayAmount(''); }}
+                          className="flex items-center gap-1 text-sm font-semibold text-red-600 hover:text-red-800"
+                          title="Due পরিশোধ করুন"
+                        >
+                          <FiClock size={14} /> ৳{fmt(memo.due_amount)}
+                        </button>
+                      ) : (
+                        <span className="flex items-center gap-1 text-sm text-green-600 font-medium">
+                          <FiCheckCircle size={13} /> Paid
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center space-x-2">
@@ -507,6 +584,61 @@ export default function CashMemo() {
                   <MemoContent memo={viewMemo} />
                 </div>
               )}
+            </div>
+            {/* Due payment bar — inside modal */}
+            {viewMemo && parseFloat(viewMemo.due_amount || 0) > 0 && (
+              <div className="px-6 py-3 border-t flex items-center gap-3 bg-red-50 rounded-b-xl">
+                <FiClock className="text-red-500" size={16} />
+                <span className="text-sm text-red-700 font-medium">Due: ৳{fmt(viewMemo.due_amount)}</span>
+                <button
+                  onClick={() => { setPayModal(viewMemo); setPayAmount(''); }}
+                  className="ml-auto flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  <FiDollarSign size={14} /> Due পরিশোধ করুন
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Pay Due Modal ── */}
+      {payModal && (
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <FiDollarSign className="text-red-500" /> Due পরিশোধ
+              </h3>
+              <button onClick={() => setPayModal(null)} className="text-gray-400 hover:text-gray-600"><FiX size={20}/></button>
+            </div>
+            <div className="space-y-1 text-sm text-gray-600">
+              <div className="flex justify-between"><span>Memo</span><span className="font-mono font-semibold">{payModal.memo_number}</span></div>
+              <div className="flex justify-between"><span>Customer</span><span className="font-medium">{payModal.customer_name}</span></div>
+              <div className="flex justify-between"><span>Total</span><span>৳{fmt(payModal.total_amount)}</span></div>
+              <div className="flex justify-between"><span>ইতোমধ্যে Paid</span><span className="text-green-600 font-medium">৳{fmt(payModal.paid_amount)}</span></div>
+              <div className="flex justify-between border-t pt-1"><span className="font-semibold">বাকি Due</span><span className="text-red-600 font-bold">৳{fmt(payModal.due_amount)}</span></div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">এখন কত টাকা নেওয়া হচ্ছে (৳) *</label>
+              <input
+                type="number" min="0.01" step="0.01" max={parseFloat(payModal.due_amount)}
+                placeholder={`সর্বোচ্চ ৳${fmt(payModal.due_amount)}`}
+                value={payAmount}
+                onChange={(e) => setPayAmount(e.target.value)}
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPayModal(null)}
+                className="flex-1 py-2 rounded-xl border text-gray-600 hover:bg-gray-50 transition-colors font-medium text-sm"
+              >বাতিল</button>
+              <button
+                onClick={handlePay}
+                disabled={paying}
+                className="flex-1 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium text-sm transition-colors disabled:opacity-60"
+              >{paying ? 'Saving...' : 'পরিশোধ নিশ্চিত করুন'}</button>
             </div>
           </div>
         </div>
