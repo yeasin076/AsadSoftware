@@ -41,8 +41,6 @@ const initExchangeTable = async () => {
   }
 };
 
-initExchangeTable().catch(console.error);
-
 // @desc    Get all exchanges
 // @route   GET /api/exchanges
 // @access  Private
