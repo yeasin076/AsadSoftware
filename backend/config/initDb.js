@@ -92,19 +92,28 @@ const initDb = async () => {
 
     `CREATE TABLE IF NOT EXISTS exchanges (
       id INT AUTO_INCREMENT PRIMARY KEY,
+      memo_number VARCHAR(30),
+      stock_phone_id INT,
+      stock_phone_brand VARCHAR(50) DEFAULT '',
+      stock_phone_model VARCHAR(100) DEFAULT '',
+      stock_phone_storage VARCHAR(20) DEFAULT '',
+      stock_phone_color VARCHAR(30) DEFAULT '',
+      stock_phone_imei VARCHAR(20) DEFAULT '',
+      stock_phone_price DECIMAL(10,2) DEFAULT 0,
       customer_name VARCHAR(100) NOT NULL,
-      customer_phone VARCHAR(20),
-      old_phone_brand VARCHAR(50),
-      old_phone_model VARCHAR(100),
-      old_phone_condition VARCHAR(50),
-      old_phone_value DECIMAL(10,2) DEFAULT 0,
-      new_phone_id INT,
-      new_phone_price DECIMAL(10,2) DEFAULT 0,
-      exchange_difference DECIMAL(10,2) DEFAULT 0,
-      exchange_date DATE NOT NULL,
+      customer_phone_contact VARCHAR(20) DEFAULT '',
+      customer_phone_brand VARCHAR(50) DEFAULT '',
+      customer_phone_model VARCHAR(100) DEFAULT '',
+      customer_phone_storage VARCHAR(20) DEFAULT '',
+      customer_phone_color VARCHAR(30) DEFAULT '',
+      customer_phone_imei VARCHAR(20) DEFAULT '',
+      customer_phone_value DECIMAL(10,2) DEFAULT 0,
+      money_direction ENUM('customer_pays','store_pays','equal') DEFAULT 'equal',
+      money_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+      new_stock_phone_id INT,
       notes TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (new_phone_id) REFERENCES phones(id) ON DELETE SET NULL
+      exchange_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_exchange_date (exchange_date)
     )`,
 
     `INSERT INTO users (username, email, password, full_name, role)
@@ -125,12 +134,31 @@ const initDb = async () => {
   // Migrations: add columns to existing tables that may have old schema
   // Note: no IF NOT EXISTS — MySQL doesn't support it; duplicate column errors are caught and ignored
   const migrations = [
+    // cash_memos missing columns
     `ALTER TABLE cash_memos ADD COLUMN type VARCHAR(20) DEFAULT 'sale'`,
     `ALTER TABLE cash_memos ADD COLUMN total_amount DECIMAL(10,2) DEFAULT 0`,
     `ALTER TABLE cash_memos ADD COLUMN paid_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
     `ALTER TABLE cash_memos ADD COLUMN due_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
     `ALTER TABLE cash_memos ADD COLUMN memo_date DATE`,
-    `ALTER TABLE exchanges ADD COLUMN memo_number VARCHAR(30) AFTER id`,
+    // exchanges — old schema used different column names; add all new columns
+    `ALTER TABLE exchanges ADD COLUMN memo_number VARCHAR(30)`,
+    `ALTER TABLE exchanges ADD COLUMN stock_phone_id INT`,
+    `ALTER TABLE exchanges ADD COLUMN stock_phone_brand VARCHAR(50) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN stock_phone_model VARCHAR(100) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN stock_phone_storage VARCHAR(20) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN stock_phone_color VARCHAR(30) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN stock_phone_imei VARCHAR(20) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN stock_phone_price DECIMAL(10,2) DEFAULT 0`,
+    `ALTER TABLE exchanges ADD COLUMN customer_phone_contact VARCHAR(20) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN customer_phone_brand VARCHAR(50) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN customer_phone_model VARCHAR(100) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN customer_phone_storage VARCHAR(20) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN customer_phone_color VARCHAR(30) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN customer_phone_imei VARCHAR(20) DEFAULT ''`,
+    `ALTER TABLE exchanges ADD COLUMN customer_phone_value DECIMAL(10,2) DEFAULT 0`,
+    `ALTER TABLE exchanges ADD COLUMN money_direction ENUM('customer_pays','store_pays','equal') DEFAULT 'equal'`,
+    `ALTER TABLE exchanges ADD COLUMN money_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
+    `ALTER TABLE exchanges ADD COLUMN new_stock_phone_id INT`,
   ];
 
   for (const migration of migrations) {
