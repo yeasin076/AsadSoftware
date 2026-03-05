@@ -53,11 +53,23 @@ const initDb = async () => {
 
     `CREATE TABLE IF NOT EXISTS investments (
       id INT AUTO_INCREMENT PRIMARY KEY,
-      investor_name VARCHAR(100) NOT NULL,
-      amount DECIMAL(10, 2) NOT NULL,
+      title VARCHAR(100) NOT NULL,
+      invested_amount DECIMAL(10,2) NOT NULL,
+      category VARCHAR(50) DEFAULT 'General',
       investment_date DATE NOT NULL,
-      notes TEXT,
+      description TEXT,
+      status ENUM('Active','Closed') DEFAULT 'Active',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`,
+
+    `CREATE TABLE IF NOT EXISTS investment_returns (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      investment_id INT NOT NULL,
+      revenue_amount DECIMAL(10,2) NOT NULL,
+      return_date DATE NOT NULL,
+      notes TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (investment_id) REFERENCES investments(id) ON DELETE CASCADE
     )`,
 
     `CREATE TABLE IF NOT EXISTS cash_memos (
@@ -161,6 +173,12 @@ const initDb = async () => {
     `ALTER TABLE exchanges ADD COLUMN new_stock_phone_id INT`,
     // Fix old exchange_date column that was DATE NOT NULL with no default
     `ALTER TABLE exchanges MODIFY COLUMN exchange_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP`,
+    // investments — old schema used investor_name/amount; add new columns
+    `ALTER TABLE investments ADD COLUMN title VARCHAR(100) NOT NULL DEFAULT ''`,
+    `ALTER TABLE investments ADD COLUMN invested_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
+    `ALTER TABLE investments ADD COLUMN category VARCHAR(50) DEFAULT 'General'`,
+    `ALTER TABLE investments ADD COLUMN description TEXT`,
+    `ALTER TABLE investments ADD COLUMN status ENUM('Active','Closed') DEFAULT 'Active'`,
   ];
 
   for (const migration of migrations) {
