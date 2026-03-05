@@ -123,20 +123,22 @@ const initDb = async () => {
   }
 
   // Migrations: add columns to existing tables that may have old schema
+  // Note: no IF NOT EXISTS — MySQL doesn't support it; duplicate column errors are caught and ignored
   const migrations = [
-    `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'sale'`,
-    `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS total_amount DECIMAL(10,2) DEFAULT 0`,
-    `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS paid_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
-    `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS due_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
-    `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS memo_date DATE`,
-    `ALTER TABLE exchanges ADD COLUMN IF NOT EXISTS memo_number VARCHAR(30) AFTER id`,
+    `ALTER TABLE cash_memos ADD COLUMN type VARCHAR(20) DEFAULT 'sale'`,
+    `ALTER TABLE cash_memos ADD COLUMN total_amount DECIMAL(10,2) DEFAULT 0`,
+    `ALTER TABLE cash_memos ADD COLUMN paid_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
+    `ALTER TABLE cash_memos ADD COLUMN due_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
+    `ALTER TABLE cash_memos ADD COLUMN memo_date DATE`,
+    `ALTER TABLE exchanges ADD COLUMN memo_number VARCHAR(30) AFTER id`,
   ];
 
   for (const migration of migrations) {
     try {
       await pool.query(migration);
     } catch (e) {
-      // Column may already exist or other non-critical error — continue
+      // Duplicate column (1060) = already exists, safe to ignore
+      if (e.errno !== 1060) console.warn('Migration warning:', e.message);
     }
   }
 
