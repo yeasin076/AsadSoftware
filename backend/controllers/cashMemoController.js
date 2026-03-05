@@ -7,16 +7,38 @@ const runMigration = async () => {
     const [cols] = await pool.query(
       `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'cash_memos'
-       AND COLUMN_NAME IN ('paid_amount','due_amount')`,
+       AND COLUMN_NAME IN ('paid_amount','due_amount','type','total_amount','memo_date')`,
       [db]
     );
     const existing = cols.map(c => c.COLUMN_NAME);
-    if (!existing.includes('paid_amount')) {
-      await pool.query(`ALTER TABLE cash_memos ADD COLUMN paid_amount DECIMAL(10,2) NOT NULL DEFAULT 0`);
+
+    const toAdd = [
+      { col: 'type',         def: `ALTER TABLE cash_memos ADD COLUMN type VARCHAR(20) DEFAULT 'sale'` },
+      { col: 'total_amount', def: `ALTER TABLE cash_memos ADD COLUMN total_amount DECIMAL(10,2) DEFAULT 0` },
+      { col: 'memo_date',    def: `ALTER TABLE cash_memos ADD COLUMN memo_date DATE` },
+      { col: 'paid_amount',  def: `ALTER TABLE cash_memos ADD COLUMN paid_amount DECIMAL(10,2) NOT NULL DEFAULT 0` },
+      { col: 'due_amount',   def: `ALTER TABLE cash_memos ADD COLUMN due_amount DECIMAL(10,2) NOT NULL DEFAULT 0` },
+    ];
+
+    for (const { col, def } of toAdd) {
+      if (!existing.includes(col)) {
+        await pool.query(def);
+        console.log(`✓ Added column cash_memos.${col}`);
+      }
     }
-    if (!existing.includes('due_amount')) {
-      await pool.query(`ALTER TABLE cash_memos ADD COLUMN due_amount  DECIMAL(10,2) NOT NULL DEFAULT 0`);
-    }
+
+    // Ensure cash_memo_items table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS cash_memo_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        memo_id INT NOT NULL,
+        description TEXT,
+        quantity INT DEFAULT 1,
+        unit_price DECIMAL(10,2) DEFAULT 0,
+        total_price DECIMAL(10,2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
+        FOREIGN KEY (memo_id) REFERENCES cash_memos(id) ON DELETE CASCADE
+      )
+    `);
   } catch (e) {
     console.error('CashMemo migration error:', e.message);
   }
