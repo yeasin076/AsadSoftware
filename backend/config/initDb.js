@@ -179,6 +179,9 @@ const initDb = async () => {
     `ALTER TABLE investments ADD COLUMN category VARCHAR(50) DEFAULT 'General'`,
     `ALTER TABLE investments ADD COLUMN description TEXT`,
     `ALTER TABLE investments ADD COLUMN status ENUM('Active','Closed') DEFAULT 'Active'`,
+    // Make old NOT NULL columns nullable so new inserts don't fail
+    `ALTER TABLE investments MODIFY COLUMN investor_name VARCHAR(100) DEFAULT ''`,
+    `ALTER TABLE investments MODIFY COLUMN amount DECIMAL(10,2) DEFAULT 0`,
   ];
 
   for (const migration of migrations) {
