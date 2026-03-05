@@ -129,6 +129,7 @@ const initDb = async () => {
     `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS paid_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
     `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS due_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
     `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS memo_date DATE`,
+    `ALTER TABLE exchanges ADD COLUMN IF NOT EXISTS memo_number VARCHAR(30) AFTER id`,
   ];
 
   for (const migration of migrations) {
