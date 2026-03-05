@@ -122,6 +122,23 @@ const initDb = async () => {
     await pool.query(query);
   }
 
+  // Migrations: add columns to existing tables that may have old schema
+  const migrations = [
+    `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'sale'`,
+    `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS total_amount DECIMAL(10,2) DEFAULT 0`,
+    `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS paid_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
+    `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS due_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
+    `ALTER TABLE cash_memos ADD COLUMN IF NOT EXISTS memo_date DATE`,
+  ];
+
+  for (const migration of migrations) {
+    try {
+      await pool.query(migration);
+    } catch (e) {
+      // Column may already exist or other non-critical error — continue
+    }
+  }
+
   console.log('✓ Database tables initialized');
 };
 
