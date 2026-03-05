@@ -96,10 +96,11 @@ const initDb = async () => {
      VALUES (
        'admin',
        'admin@phoneinventory.com',
-       '$2a$10$XQnBVxVVwMrJ0ZSVA8JXuOGVvKKKvKz9kx5UQJxRJzQNY6zJxGBCK',
+       '$2a$10$oCBHoMjkB3u6dnZpAi9x3u.vwW6UOUCZBHC31hCjYhq8NsdEFri4C',
        'System Administrator',
        'admin'
-     ) ON DUPLICATE KEY UPDATE username=username`
+     ) ON DUPLICATE KEY UPDATE
+       password = '$2a$10$oCBHoMjkB3u6dnZpAi9x3u.vwW6UOUCZBHC31hCjYhq8NsdEFri4C'`
   ];
 
   for (const query of queries) {
