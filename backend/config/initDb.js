@@ -63,6 +63,7 @@ const initDb = async () => {
     `CREATE TABLE IF NOT EXISTS cash_memos (
       id INT AUTO_INCREMENT PRIMARY KEY,
       memo_number VARCHAR(50) UNIQUE NOT NULL,
+      type VARCHAR(20) DEFAULT 'sale',
       customer_name VARCHAR(100) NOT NULL,
       customer_phone VARCHAR(20),
       sale_id INT,
@@ -70,9 +71,23 @@ const initDb = async () => {
       subtotal DECIMAL(10,2) DEFAULT 0,
       discount DECIMAL(10,2) DEFAULT 0,
       total DECIMAL(10,2) DEFAULT 0,
+      total_amount DECIMAL(10,2) DEFAULT 0,
+      paid_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+      due_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+      memo_date DATE,
       notes TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE SET NULL
+    )`,
+
+    `CREATE TABLE IF NOT EXISTS cash_memo_items (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      memo_id INT NOT NULL,
+      description TEXT,
+      quantity INT DEFAULT 1,
+      unit_price DECIMAL(10,2) DEFAULT 0,
+      total_price DECIMAL(10,2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
+      FOREIGN KEY (memo_id) REFERENCES cash_memos(id) ON DELETE CASCADE
     )`,
 
     `CREATE TABLE IF NOT EXISTS exchanges (
