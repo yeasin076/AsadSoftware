@@ -159,6 +159,8 @@ const initDb = async () => {
     `ALTER TABLE exchanges ADD COLUMN money_direction ENUM('customer_pays','store_pays','equal') DEFAULT 'equal'`,
     `ALTER TABLE exchanges ADD COLUMN money_amount DECIMAL(10,2) NOT NULL DEFAULT 0`,
     `ALTER TABLE exchanges ADD COLUMN new_stock_phone_id INT`,
+    // Fix old exchange_date column that was DATE NOT NULL with no default
+    `ALTER TABLE exchanges MODIFY COLUMN exchange_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP`,
   ];
 
   for (const migration of migrations) {
