@@ -14,6 +14,9 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://asad-software.vercel.app',
+  'https://applehq.online',
+  'https://www.applehq.online',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
