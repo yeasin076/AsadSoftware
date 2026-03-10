@@ -16,10 +16,11 @@ router.use(authMiddleware);
 router.get('/', getInvestments);
 router.post('/', addInvestment);
 router.patch('/:id/status', updateInvestmentStatus);
-router.delete('/:id', deleteInvestment);
 
 router.get('/:id/returns', getReturns);
 router.post('/:id/returns', addReturn);
 router.delete('/returns/:returnId', deleteReturn);
+
+router.delete('/:id', deleteInvestment);
 
 module.exports = router;

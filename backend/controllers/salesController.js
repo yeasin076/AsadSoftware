@@ -50,12 +50,18 @@ const sellPhone = async (req, res) => {
       [phone_id]
     );
 
-    // Auto-generate cash memo within the same transaction
-    const memoInfo = await createSaleMemo(
-      saleResult.insertId, phone, customer_name, customer_phone, connection
-    );
-
+    // Commit the sale first so the FK reference is visible for memo creation
     await connection.commit();
+
+    // Auto-generate cash memo AFTER committing (uses pool, not transaction)
+    let memoInfo = { memoId: null, memoNumber: null };
+    try {
+      memoInfo = await createSaleMemo(
+        saleResult.insertId, phone, customer_name, customer_phone, null
+      );
+    } catch (memoError) {
+      console.error('Memo creation failed (sale was recorded):', memoError);
+    }
 
     res.status(201).json({
       success: true,
@@ -72,7 +78,7 @@ const sellPhone = async (req, res) => {
     console.error('Sell phone error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: error.message || 'Server error'
     });
   } finally {
     connection.release();
