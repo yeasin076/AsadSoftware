@@ -54,14 +54,9 @@ const sellPhone = async (req, res) => {
     await connection.commit();
 
     // Auto-generate cash memo AFTER committing (uses pool, not transaction)
-    let memoInfo = { memoId: null, memoNumber: null };
-    try {
-      memoInfo = await createSaleMemo(
-        saleResult.insertId, phone, customer_name, customer_phone, null
-      );
-    } catch (memoError) {
-      console.error('Memo creation failed (sale was recorded):', memoError);
-    }
+    const memoInfo = await createSaleMemo(
+      saleResult.insertId, phone, customer_name, customer_phone, null
+    );
 
     res.status(201).json({
       success: true,

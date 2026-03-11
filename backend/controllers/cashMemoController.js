@@ -59,11 +59,12 @@ const generateMemoNumber = async (conn) => {
 const createSaleMemo = async (saleId, phone, customerName, customerPhone, conn) => {
   const memoNumber = await generateMemoNumber(conn);
   const today = new Date().toISOString().split('T')[0];
+  const totalAmt = parseFloat(phone.selling_price) || 0;
 
   const [memoResult] = await (conn || pool).query(
-    `INSERT INTO cash_memos (memo_number, type, sale_id, customer_name, customer_phone, total_amount, memo_date)
-     VALUES (?, 'sale', ?, ?, ?, ?, ?)`,
-    [memoNumber, saleId, customerName, customerPhone || '', phone.selling_price, today]
+    `INSERT INTO cash_memos (memo_number, type, sale_id, customer_name, customer_phone, total_amount, paid_amount, due_amount, memo_date)
+     VALUES (?, 'sale', ?, ?, ?, ?, ?, 0, ?)`,
+    [memoNumber, saleId, customerName, customerPhone || '', totalAmt, totalAmt, today]
   );
 
   const memoId = memoResult.insertId;
