@@ -47,12 +47,17 @@ const runMigration = async () => {
 // ── Internal helper: generate memo number like CM-2026-0001 ──────────────────
 const generateMemoNumber = async (conn) => {
   const year = new Date().getFullYear();
+  const prefix = `CM-${year}-`;
   const [rows] = await (conn || pool).query(
-    `SELECT COUNT(*) as cnt FROM cash_memos WHERE YEAR(created_at) = ?`,
-    [year]
+    `SELECT memo_number FROM cash_memos WHERE memo_number LIKE ? ORDER BY id DESC LIMIT 1`,
+    [`${prefix}%`]
   );
-  const num = (rows[0].cnt + 1).toString().padStart(4, '0');
-  return `CM-${year}-${num}`;
+  let num = 1;
+  if (rows.length > 0) {
+    const lastNum = parseInt(rows[0].memo_number.replace(prefix, '')) || 0;
+    num = lastNum + 1;
+  }
+  return `${prefix}${String(num).padStart(4, '0')}`;
 };
 
 // ── Called from salesController within its transaction ──────────────────────

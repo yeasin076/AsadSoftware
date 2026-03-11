@@ -22,6 +22,7 @@ const Sales = () => {
   const [memoLoading, setMemoLoading] = useState(false);
   const printRef = useRef();
 
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     phone_id: '',
     customer_name: '',
@@ -74,8 +75,10 @@ const Sales = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
 
     try {
+      setSubmitting(true);
       const response = await api.post('/sales', formData);
       toast.success(`Phone sold! Profit: ৳${response.data.data.profit} — Memo: ${response.data.data.memo_number}`);
       setShowModal(false);
@@ -88,6 +91,8 @@ const Sales = () => {
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to sell phone');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -390,8 +395,8 @@ const Sales = () => {
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
-                  Complete Sale
+                <button type="submit" className="btn-primary" disabled={submitting}>
+                  {submitting ? 'Processing...' : 'Complete Sale'}
                 </button>
               </div>
             </form>

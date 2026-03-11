@@ -6,7 +6,8 @@ const { createSaleMemo } = require('./cashMemoController');
 // @access  Private
 const sellPhone = async (req, res) => {
   const connection = await pool.getConnection();
-  
+  let committed = false;
+
   try {
     await connection.beginTransaction();
 
@@ -52,11 +53,18 @@ const sellPhone = async (req, res) => {
 
     // Commit the sale first so the FK reference is visible for memo creation
     await connection.commit();
+    committed = true;
+    connection.release();
 
     // Auto-generate cash memo AFTER committing (uses pool, not transaction)
-    const memoInfo = await createSaleMemo(
-      saleResult.insertId, phone, customer_name, customer_phone, null
-    );
+    let memoInfo = { memoId: null, memoNumber: null };
+    try {
+      memoInfo = await createSaleMemo(
+        saleResult.insertId, phone, customer_name, customer_phone, null
+      );
+    } catch (memoError) {
+      console.error('Memo creation failed (sale was recorded):', memoError);
+    }
 
     res.status(201).json({
       success: true,
@@ -69,14 +77,15 @@ const sellPhone = async (req, res) => {
       }
     });
   } catch (error) {
-    await connection.rollback();
+    if (!committed) {
+      try { await connection.rollback(); } catch {}
+      connection.release();
+    }
     console.error('Sell phone error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Server error'
     });
-  } finally {
-    connection.release();
   }
 };
 
